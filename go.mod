@@ -1,4 +1,4 @@
-module github.com/developerdong/simple-rate-limiter
+module github.com/developerdong/limit
 
 go 1.15
 

@@ -1,4 +1,4 @@
-package simple_rate_limiter
+package limit
 
 import (
 	"context"
@@ -9,7 +9,7 @@ import (
 func TestLimiter(t *testing.T) {
 	n := 60
 	duration := 10 * time.Second
-	limiter := NewLimiter(int64(n), duration)
+	limiter := New(int64(n), duration)
 	for i := 0; i < n+1; i++ {
 		_ = limiter.Wait(context.Background())
 	}

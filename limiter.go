@@ -1,4 +1,4 @@
-package simple_rate_limiter
+package limit
 
 import (
 	"context"
@@ -28,9 +28,9 @@ func (l *Limiter) Wait(ctx context.Context) error {
 	return l.WaitN(ctx, 1)
 }
 
-// NewLimiter returns a new limiter which ensures that
+// New returns a new limiter which ensures that
 // at most n tasks can run in the time window of d.
-func NewLimiter(n int64, d time.Duration) *Limiter {
+func New(n int64, d time.Duration) *Limiter {
 	return &Limiter{
 		sem:      semaphore.NewWeighted(n),
 		duration: d,
