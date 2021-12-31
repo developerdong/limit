@@ -32,6 +32,23 @@ func (l *Limiter) Wait(ctx context.Context) error {
 	return l.WaitN(ctx, 1)
 }
 
+// PassN acquires n tokens to continue without blocking. On success, returns
+// true. On failure, returns false and leaves the limiter unchanged.
+func (l *Limiter) PassN(n int64) bool {
+	var success bool
+	if success = l.sem.TryAcquire(n); success {
+		time.AfterFunc(l.duration, func() {
+			l.sem.Release(n)
+		})
+	}
+	return success
+}
+
+// Pass acquires 1 token to continue without blocking.
+func (l *Limiter) Pass() bool {
+	return l.PassN(1)
+}
+
 // New returns a new limiter which ensures that at most n tasks can run in the
 // time window of d.
 func New(n int64, d time.Duration) *Limiter {
