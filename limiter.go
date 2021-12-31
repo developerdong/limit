@@ -6,13 +6,17 @@ import (
 	"time"
 )
 
-// Limiter provides a way to bound too many concurrent tasks to run.
+// Limiter provides a way to bound too many concurrent tasks to run. It is like a
+// combination of sliding window and token bucket.
 type Limiter struct {
 	sem      *semaphore.Weighted
 	duration time.Duration
 }
 
-// WaitN waits for n tokens to continue.
+// WaitN waits for n tokens to continue, blocking until resources are available
+// or ctx is done. On success, returns nil. On failure, returns ctx.Err() and
+// leaves the limiter unchanged. If ctx is already done, WaitN may still succeed
+// without blocking.
 func (l *Limiter) WaitN(ctx context.Context, n int64) error {
 	var err error
 	if err = l.sem.Acquire(ctx, n); err == nil {
@@ -28,8 +32,8 @@ func (l *Limiter) Wait(ctx context.Context) error {
 	return l.WaitN(ctx, 1)
 }
 
-// New returns a new limiter which ensures that
-// at most n tasks can run in the time window of d.
+// New returns a new limiter which ensures that at most n tasks can run in the
+// time window of d.
 func New(n int64, d time.Duration) *Limiter {
 	return &Limiter{
 		sem:      semaphore.NewWeighted(n),
